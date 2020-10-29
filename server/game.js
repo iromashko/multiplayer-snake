@@ -77,7 +77,32 @@ function randomFood(state) {
   state.food = food;
 }
 
+function getUpdatedVelocity(keyCode) {
+  switch (keyCode) {
+    case 37: {
+      return { x: -1, y: 0 };
+    }
+    case 38: {
+      return { x: 0, y: -1 };
+    }
+    case 39: {
+      return { x: 1, y: 0 };
+    }
+    case 40: {
+      return { x: 0, y: 1 };
+    }
+  }
+}
+
+function initGame() {
+  const state = createGameState();
+  randomFood(state);
+  return state;
+}
+
 module.exports = {
   createGameState,
   gameLoop,
+  getUpdatedVelocity,
+  initGame,
 };

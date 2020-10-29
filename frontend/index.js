@@ -1,16 +1,40 @@
 const BG_COLOR = '#231f20';
 const SNAKE_COLOR = '#c2c2c2';
 const FOOD_COLOR = '#e66915';
+
 const gameScreen = document.getElementById('gameScreen');
+const initialScreen = document.getElementById('initialScreen');
+const newGameBtn = document.getElementById('newGameButton');
+const joinGameBtn = document.getElementById('joinGameButton');
+const gameCodeInput = document.getElementById('gameCodeInput');
+const gameCodeDisplay = document.getElementById('gameCodeDisplay');
 
 const socket = io('http://localhost:3000');
+let canvas, ctx;
+let playerNumber;
+
+newGameBtn.addEventListener('click', newGame);
+joinGameBtn.addEventListener('click', joinGame);
+
+function newGame() {
+  socket.emit('newGame');
+  init();
+}
+
+function joinGame() {
+  const code = gameCodeInput.value;
+  socket.emit('joinGame', code);
+  init();
+}
 
 socket.on('init', handleInit);
 socket.on('gameState', handleGameState);
-
-let canvas, ctx;
+socket.on('gameOver', handleGameOver);
+socket.on('gameCode', handleGameCode);
 
 function init() {
+  initialScreen.style.display = 'none';
+  gameScreen.style.display = 'block';
   canvas = document.getElementById('canvas');
   ctx = canvas.getContext('2d');
 
@@ -23,8 +47,8 @@ function init() {
 
 function keydown(e) {
   console.log(e.keyCode);
+  socket.emit('keydown', e.keyCode);
 }
-init();
 
 function paintGame(state) {
   ctx.fillStyle = BG_COLOR;
@@ -48,11 +72,19 @@ function paintPlayer(playerState, size, color) {
   }
 }
 
-function handleInit(msg) {
-  console.log(msg);
+function handleInit(number) {
+  playerNumber = number;
 }
 
 function handleGameState(gameState) {
   gameState = JSON.parse(gameState);
   requestAnimationFrame(() => paintGame(gameState));
+}
+
+function handleGameOver() {
+  alert('You lose!');
+}
+
+function handleGameCode(gameCode) {
+  gameCodeDisplay.innerText = gameCode;
 }
