@@ -1,5 +1,15 @@
-const io = require('socket.io')();
 const { initGame, gameLoop, getUpdatedVelocity } = require('./game');
+
+const express = require('express');
+const path = require('path');
+const http = require('http');
+const socketio = require('socket.io');
+const app = express();
+const server = http.createServer(app);
+const io = socketio(server);
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 const { makeId } = require('./utils');
 const { FRAME_RATE } = require('./constants');
 
@@ -95,4 +105,4 @@ function emitGameOver(roomName, winner) {
   io.sockets.in(roomName).emit('gameOver', JSON.stringify({ winner }));
 }
 
-io.listen(process.env.PORT || 3000);
+server.listen(process.env.PORT || 3000);
